@@ -1,3 +1,7 @@
+#Even in 2024, when trying to upload local photos to iCloud, you can't upload folders. This is annoying.
+#Imagine having 10 years worth of photos in tens if not hundreds of folders from a camera. You would have to go through every single folder and select the photos in that folder.
+#I made this simple script to move all photos from the subfolders to a single folder. This way you can select all the photos at the same time. 
+
 param (
 	[string]$rootFolder,
 	[string]$destinationFolder
@@ -31,6 +35,5 @@ foreach ($file in $files) {
 
 Write-Output "All files copied to destination folder: $destinationFolder"
 Write-Output "$filesCopied files were copied."
-
 
 Read-Host "Press Enter to exit"
