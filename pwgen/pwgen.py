@@ -15,7 +15,17 @@ def initialize_parser():
                         type=int,
                         help='Specify password length')
     parser.add_argument('-n', '--numbers', 
-    type=int, help='Specify how many numbers')
+                        type=int, help='Specify how many numbers')
+    parser.add_argument('-fp', '--finnish_password_paragraph', 
+                        type=int, 
+                        help='Specify how many words your finnish password paragraph should have')
+    parser.add_argument('-ep', '--english-password-paragraph', 
+                        type=int, 
+                        help='Specify how many words your english password paragraph should have')
+    parser.add_argument('-mp', '--mixed-password-paragraph', 
+                        type=int, 
+                        help='Specify how many words your english and finnish mixed password paragraph should have')
+
     return parser
 
 
@@ -36,7 +46,14 @@ def create_password(length: int=12, password_paragraph: bool=False):
         x += 1
     return pw
 
-def create_password_with_string(input_string):
+def create_finnish_password_paragraph(number_of_words: int=3):
+    pw = ""
+    lines = open('kaikkisanat.txt').read().splitlines()
+    for i in range(number_of_words):
+        pw += choice(lines).capitalize()
+    return pw
+
+def create_password_with_string(length: int=12, input_string: str=""):
     base = create_password_base()
     x = 0
     pw = ""
@@ -53,9 +70,12 @@ def main():
     args = vars(parser.parse_args())
     print(pyfiglet.figlet_format("PWGEN"))
     integer_value = args['length']
+    #print(args['finnish_password_paragraph'])
     #print(args)
     if args['default']:
         print("Generated password: " + create_password())
+    if args['finnish_password_paragraph']:
+        print("Generated password: " + create_finnish_password_paragraph(args['finnish_password_paragraph']))
     if args['length']:        
         try:
             print("Generated password: " + create_password(integer_value))
