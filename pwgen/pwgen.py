@@ -46,6 +46,25 @@ def create_password(length: int=12, password_paragraph: bool=False):
         x += 1
     return pw
 
+#WIP
+def obfuscate_string(string_to_obfuscate):
+    obfuscated_string = string_to_obfuscate
+    return obfuscated_string
+
+# Combine with obfuscate_string
+def create_password_with_string(length: int=12, input_string: str=""):
+    base = create_password_base()
+    x = 0
+    pw = ""
+    while x <= int(length)-1-len(input_string):
+        pw += choice(base)
+        x += 1
+    N = randint(0, len(input_string))
+    pw = pw[:N]+ str(input_string) + pw[N:]
+    return pw
+
+
+#Refactor paragraph functionality into one function
 def create_finnish_password_paragraph(number_of_words: int=3):
     pw = ""
     lines = open('kaikkisanat.txt').read().splitlines()
@@ -69,24 +88,11 @@ def create_mixed_password_paragraph(number_of_words: int=3):
         pw += choice(lines).capitalize()
     return pw
 
-def create_password_with_string(length: int=12, input_string: str=""):
-    base = create_password_base()
-    x = 0
-    pw = ""
-    while x <= int(length)-1-len(input_string):
-        pw += choice(base)
-        x += 1
-    N = randint(0, len(input_string))
-    pw = pw[:N]+ str(input_string) + pw[N:]
-    return pw
-
-
 def main(): 
     parser = initialize_parser()
     args = vars(parser.parse_args())
     print(pyfiglet.figlet_format("PWGEN"))
     integer_value = args['length']
-    #print(args['finnish_password_paragraph'])
     #print(args)
     if args['default']:
         print("Generated default password: " + create_password())
@@ -102,8 +108,6 @@ def main():
             #length = input("How long should your password be?")
         except ValueError:
             print("\n Please enter a valid length!")
-        
-   
     
 if __name__ == "__main__":
     main()
