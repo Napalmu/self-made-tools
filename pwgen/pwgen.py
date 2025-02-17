@@ -1,6 +1,6 @@
 import argparse
 import pyfiglet
-from random import choice, randint
+from random import choice, randint, shuffle
 
 def initialize_parser():
     parser = argparse.ArgumentParser(
@@ -19,10 +19,10 @@ def initialize_parser():
     parser.add_argument('-fp', '--finnish_password_paragraph', 
                         type=int, 
                         help='Specify how many words your finnish password paragraph should have')
-    parser.add_argument('-ep', '--english-password-paragraph', 
+    parser.add_argument('-ep', '--english_password_paragraph', 
                         type=int, 
                         help='Specify how many words your english password paragraph should have')
-    parser.add_argument('-mp', '--mixed-password-paragraph', 
+    parser.add_argument('-mp', '--mixed_password_paragraph', 
                         type=int, 
                         help='Specify how many words your english and finnish mixed password paragraph should have')
 
@@ -53,6 +53,22 @@ def create_finnish_password_paragraph(number_of_words: int=3):
         pw += choice(lines).capitalize()
     return pw
 
+def create_english_password_paragraph(number_of_words: int=3):
+    pw = ""
+    lines = open('1000-most-common-words.txt').read().splitlines()
+    for i in range(number_of_words):
+        pw += choice(lines).capitalize()
+    return pw
+
+def create_mixed_password_paragraph(number_of_words: int=3):
+    pw = ""
+    lines = open('1000-most-common-words.txt').read().splitlines()
+    lines += open('kaikkisanat.txt').read().splitlines()
+    shuffle(lines)
+    for i in range(number_of_words):
+        pw += choice(lines).capitalize()
+    return pw
+
 def create_password_with_string(length: int=12, input_string: str=""):
     base = create_password_base()
     x = 0
@@ -73,9 +89,13 @@ def main():
     #print(args['finnish_password_paragraph'])
     #print(args)
     if args['default']:
-        print("Generated password: " + create_password())
+        print("Generated default password: " + create_password())
     if args['finnish_password_paragraph']:
-        print("Generated password: " + create_finnish_password_paragraph(args['finnish_password_paragraph']))
+        print("Generated finnish password paragraph: " + create_finnish_password_paragraph(args['finnish_password_paragraph']))
+    if args['english_password_paragraph']:
+        print("Generated english password paragraph: " + create_english_password_paragraph(args['english_password_paragraph']))
+    if args['mixed_password_paragraph']:
+        print("Generated mixed password paragraph: " + create_mixed_password_paragraph(args['mixed_password_paragraph']))
     if args['length']:        
         try:
             print("Generated password: " + create_password(integer_value))
