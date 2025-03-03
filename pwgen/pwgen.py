@@ -1,6 +1,7 @@
 import argparse
 import pyfiglet
 from random import choice, randint, shuffle
+from enum import Enum
 
 def initialize_parser():
     parser = argparse.ArgumentParser(
@@ -25,9 +26,15 @@ def initialize_parser():
     parser.add_argument('-mp', '--mixed_password_paragraph', 
                         type=int, 
                         help='Specify how many words your english and finnish mixed password paragraph should have')
+    parser.add_argument('-leet', '--leet_speak_obfuscation', type=bool, help="Obfuscate password with leetspeak")
+    parser.add_argument('-obf', '--obfuscate', type=int, help="Obfuscate password with intensity levels from 1 (mild) -3 (extreme)")
 
     return parser
 
+class Wordlist(Enum):
+    FINNISH = ['kaikkisanat.txt']
+    ENGLISH = ['1000-most-common-words.txt']
+    MIXED = ['kaikkisanat.txt', '1000-most-common-words.txt']
 
 def create_password_base():
     base_numbers = "123456789"
@@ -44,12 +51,24 @@ def create_password(length: int=12, password_paragraph: bool=False):
     while x <= int(length)-1:
         pw += choice(base)
         x += 1
+    global password
+    password = pw
     return pw
 
-#WIP
-def obfuscate_string(string_to_obfuscate):
-    obfuscated_string = string_to_obfuscate
+#Obfucate string using leetspeak for example with an intensity level
+def obfuscate_string(string_to_obfuscate, level="moderate"):
+    levels = {
+        "mild": str.maketrans({"e": "3", "o": "0"}),
+        "moderate": str.maketrans({"a": "4", "e": "3", "i": "1", "o": "0", "s": "5"}),
+        "extreme": str.maketrans({"a": "4", "b": "8", "e": "3", "g": "9", "i": "1",
+                                  "l": "1", "o": "0", "s": "5", "t": "7", "z": "2"})
+    }
+    # Apply the corresponding translation map
+    obfuscated_string = string_to_obfuscate.translate(levels.get(level, levels[level]))
+    #print(string_to_obfuscate)
+    #print(obfuscated_string)
     return obfuscated_string
+
 
 # Combine with obfuscate_string
 def create_password_with_string(length: int=12, input_string: str=""):
@@ -63,29 +82,17 @@ def create_password_with_string(length: int=12, input_string: str=""):
     pw = pw[:N]+ str(input_string) + pw[N:]
     return pw
 
-
-#Refactor paragraph functionality into one function
-def create_finnish_password_paragraph(number_of_words: int=3):
+# Using wordlists, create a password by combining the lines found in said wordlists
+def create_password_paragraph(language, number_of_words: int=3):
     pw = ""
-    lines = open('kaikkisanat.txt').read().splitlines()
-    for i in range(number_of_words):
-        pw += choice(lines).capitalize()
-    return pw
-
-def create_english_password_paragraph(number_of_words: int=3):
-    pw = ""
-    lines = open('1000-most-common-words.txt').read().splitlines()
-    for i in range(number_of_words):
-        pw += choice(lines).capitalize()
-    return pw
-
-def create_mixed_password_paragraph(number_of_words: int=3):
-    pw = ""
-    lines = open('1000-most-common-words.txt').read().splitlines()
-    lines += open('kaikkisanat.txt').read().splitlines()
+    lines = []
+    for wordlist in language:
+        lines += open(wordlist).read().splitlines()
     shuffle(lines)
     for i in range(number_of_words):
         pw += choice(lines).capitalize()
+    global password
+    password = pw
     return pw
 
 def main(): 
@@ -94,14 +101,16 @@ def main():
     print(pyfiglet.figlet_format("PWGEN"))
     integer_value = args['length']
     #print(args)
-    if args['default']:
+    if args['default'] == True:
         print("Generated default password: " + create_password())
     if args['finnish_password_paragraph']:
-        print("Generated finnish password paragraph: " + create_finnish_password_paragraph(args['finnish_password_paragraph']))
+        print("Generated finnish password paragraph: " + create_password_paragraph(Wordlist.FINNISH.value, args['finnish_password_paragraph']))
     if args['english_password_paragraph']:
-        print("Generated english password paragraph: " + create_english_password_paragraph(args['english_password_paragraph']))
+        print("Generated english password paragraph: " + create_password_paragraph(Wordlist.ENGLISH.value, args['english_password_paragraph']))
     if args['mixed_password_paragraph']:
-        print("Generated mixed password paragraph: " + create_mixed_password_paragraph(args['mixed_password_paragraph']))
+        print("Generated mixed password paragraph: " + create_password_paragraph(Wordlist.MIXED.value, args['mixed_password_paragraph']))
+    if args['obfuscate']:
+        print("Obfuscated pw: "+ obfuscate_string(password))
     if args['length']:        
         try:
             print("Generated password: " + create_password(integer_value))
